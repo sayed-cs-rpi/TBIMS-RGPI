@@ -3,34 +3,44 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import {
-  createRoom,
-  updateRoom,
-  deleteRoom,
-  subscribeToRooms,
+  createPlace,
+  updatePlace,
+  deletePlace,
+  subscribeToPlaces,
   getUsersByRole,
-  countActiveTicketsForRoom,
+  countActiveTicketsForPlace,
 } from '@/lib/firestore-service';
-import { Room, User } from '@/lib/types';
+import { Place, User } from '@/lib/types';
 import toast from 'react-hot-toast';
 import { Building2, Pencil, Plus, Trash2, X } from 'lucide-react';
+import {
+  cardClass,
+  emptyStateClass,
+  fieldClass,
+  pageSubClass,
+  pageTitleClass,
+  panelClass,
+  primaryBtnClass,
+  secondaryBtnClass,
+} from '@/components/app-shell';
 
 const emptyForm = {
   name: '',
   building: '',
   floor: '',
-  roomNumber: '',
+  locationNumber: '',
   notes: '',
   ownerId: '',
 };
 
 export default function AdminRoomsPage() {
   const { user } = useAuth();
-  const [rooms, setRooms] = useState<Room[]>([]);
+  const [places, setPlaces] = useState<Place[]>([]);
   const [complainers, setComplainers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing] = useState<Room | null>(null);
+  const [editing, setEditing] = useState<Place | null>(null);
   const [formData, setFormData] = useState(emptyForm);
 
   useEffect(() => {
@@ -41,8 +51,8 @@ export default function AdminRoomsPage() {
         toast.error('Failed to load complainers');
       });
 
-    const unsubscribe = subscribeToRooms(roomsData => {
-      setRooms(roomsData);
+    const unsubscribe = subscribeToPlaces(placesData => {
+      setPlaces(placesData);
       setLoading(false);
     });
 
@@ -55,15 +65,15 @@ export default function AdminRoomsPage() {
     setShowModal(true);
   }
 
-  function openEdit(room: Room) {
-    setEditing(room);
+  function openEdit(place: Place) {
+    setEditing(place);
     setFormData({
-      name: room.name,
-      building: room.building,
-      floor: room.floor,
-      roomNumber: room.roomNumber,
-      notes: room.notes || '',
-      ownerId: room.ownerId,
+      name: place.name,
+      building: place.building,
+      floor: place.floor,
+      locationNumber: place.locationNumber,
+      notes: place.notes || '',
+      ownerId: place.ownerId,
     });
     setShowModal(true);
   }
@@ -72,8 +82,8 @@ export default function AdminRoomsPage() {
     e.preventDefault();
     if (!user) return;
 
-    if (!formData.name.trim() || !formData.building.trim() || !formData.floor.trim() || !formData.roomNumber.trim()) {
-      toast.error('Please fill in name, building, floor, and room number');
+    if (!formData.name.trim() || !formData.building.trim() || !formData.floor.trim() || !formData.locationNumber.trim()) {
+      toast.error('Please fill in name, building, floor, and location number');
       return;
     }
     if (!formData.ownerId) {
@@ -93,7 +103,7 @@ export default function AdminRoomsPage() {
         name: formData.name.trim(),
         building: formData.building.trim(),
         floor: formData.floor.trim(),
-        roomNumber: formData.roomNumber.trim(),
+        locationNumber: formData.locationNumber.trim(),
         notes: formData.notes.trim() || undefined,
         ownerId: owner.uid,
         ownerName: owner.name,
@@ -101,42 +111,42 @@ export default function AdminRoomsPage() {
       };
 
       if (editing) {
-        await updateRoom(editing.id, payload);
-        toast.success('Room updated');
+        await updatePlace(editing.id, payload);
+        toast.success('Place updated');
       } else {
-        await createRoom({
+        await createPlace({
           ...payload,
           createdBy: user.uid,
         });
-        toast.success('Room created');
+        toast.success('Place created');
       }
 
       setShowModal(false);
       setEditing(null);
       setFormData(emptyForm);
     } catch (error) {
-      console.error('[v0] Error saving room:', error);
-      toast.error('Failed to save room');
+      console.error('[v0] Error saving place:', error);
+      toast.error('Failed to save place');
     } finally {
       setSaving(false);
     }
   }
 
-  async function handleDelete(room: Room) {
-    const active = await countActiveTicketsForRoom(room.id);
+  async function handleDelete(place: Place) {
+    const active = await countActiveTicketsForPlace(place.id);
     if (active > 0) {
-      toast.error(`Cannot delete: ${active} active ticket(s) use this room`);
+      toast.error(`Cannot delete: ${active} active ticket(s) use this place`);
       return;
     }
-    if (!confirm(`Delete room "${room.name}"?`)) return;
+    if (!confirm(`Delete place "${place.name}"?`)) return;
 
     try {
-      await deleteRoom(room.id);
-      toast.success('Room deleted');
-      setRooms(rooms.filter(r => r.id !== room.id));
+      await deletePlace(place.id);
+      toast.success('Place deleted');
+      setPlaces(places.filter(p => p.id !== place.id));
     } catch (error) {
-      console.error('[v0] Error deleting room:', error);
-      toast.error('Failed to delete room');
+      console.error('[v0] Error deleting place:', error);
+      toast.error('Failed to delete place');
     }
   }
 
@@ -144,7 +154,7 @@ export default function AdminRoomsPage() {
     return (
       <div className="text-center py-12">
         <div className="animate-spin rounded-full h-12 w-12 border-2 border-foreground/20 border-t-foreground mx-auto"></div>
-        <p className="mt-4 text-foreground/60">Loading rooms...</p>
+        <p className="mt-4 text-foreground/60">Loading places...</p>
       </div>
     );
   }
@@ -153,28 +163,25 @@ export default function AdminRoomsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-semibold tracking-tight text-foreground">Rooms</h2>
-          <p className="text-foreground/60 mt-2">Create rooms and bind them to complainer accounts</p>
+          <h2 className={pageTitleClass}>Places</h2>
+          <p className={pageSubClass}>Create places and bind them to complainer accounts</p>
         </div>
-        <button
-          onClick={openCreate}
-          className="flex items-center gap-2 bg-foreground text-background hover:opacity-90 font-semibold px-4 py-2 rounded-lg transition-colors"
-        >
+        <button onClick={openCreate} className={`flex items-center gap-2 ${primaryBtnClass}`}>
           <Plus className="w-4 h-4" />
-          Add Room
+          Add Place
         </button>
       </div>
 
-      {rooms.length === 0 ? (
-        <div className="bg-card border border-border p-12 text-center">
+      {places.length === 0 ? (
+        <div className={emptyStateClass}>
           <Building2 className="w-12 h-12 text-foreground/40 mx-auto mb-4" />
-          <p className="text-foreground/60 mb-2 text-lg">No rooms yet</p>
-          <p className="text-foreground/60">Create a room and bind it to a complainer account.</p>
+          <p className="text-foreground/60 mb-2 text-lg">No places yet</p>
+          <p className="text-foreground/60">Create a place and bind it to a complainer account.</p>
         </div>
       ) : (
-        <div className="bg-card border border-border overflow-hidden">
+        <div className={`${panelClass} overflow-hidden`}>
           <table className="w-full text-left">
-            <thead className="bg-secondary/40 border-b border-border">
+            <thead className="bg-white/30 dark:bg-white/10 border-b border-border/50">
               <tr>
                 <th className="px-4 py-3 text-sm font-semibold text-foreground/80">Name</th>
                 <th className="px-4 py-3 text-sm font-semibold text-foreground/80">Location</th>
@@ -184,29 +191,29 @@ export default function AdminRoomsPage() {
               </tr>
             </thead>
             <tbody>
-              {rooms.map(room => (
-                <tr key={room.id} className="border-b border-border last:border-0">
-                  <td className="px-4 py-3 font-medium text-foreground">{room.name}</td>
+              {places.map(place => (
+                <tr key={place.id} className="border-b border-border/30 last:border-0 hover:bg-white/20 dark:hover:bg-white/5 transition">
+                  <td className="px-4 py-3 font-medium text-foreground">{place.name}</td>
                   <td className="px-4 py-3 text-sm text-foreground/60">
-                    {room.building} · Floor {room.floor} · #{room.roomNumber}
+                    {place.building} · Floor {place.floor} · #{place.locationNumber}
                   </td>
                   <td className="px-4 py-3 text-sm text-foreground/60">
-                    <div>{room.ownerName}</div>
-                    <div className="text-xs text-foreground/50">{room.ownerEmail}</div>
+                    <div>{place.ownerName}</div>
+                    <div className="text-xs text-foreground/50">{place.ownerEmail}</div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-foreground/50">{room.notes || '—'}</td>
+                  <td className="px-4 py-3 text-sm text-foreground/50">{place.notes || '—'}</td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
                       <button
-                        onClick={() => openEdit(room)}
-                        className="p-2 text-foreground/60 hover:text-foreground hover:bg-secondary/40 rounded-lg"
+                        onClick={() => openEdit(place)}
+                        className="p-2 text-foreground/60 hover:text-foreground hover:bg-white/20 dark:hover:bg-white/10 rounded-lg transition"
                         title="Edit"
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(room)}
-                        className="p-2 text-foreground/60 hover:text-destructive hover:bg-secondary/40 rounded-lg"
+                        onClick={() => handleDelete(place)}
+                        className="p-2 text-foreground/60 hover:text-destructive hover:bg-red-500/10 rounded-lg transition"
                         title="Delete"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -221,13 +228,13 @@ export default function AdminRoomsPage() {
       )}
 
       {showModal && (
-        <div className="fixed inset-0 bg-foreground/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-card border border-border w-full max-w-lg">
-            <div className="flex items-center justify-between p-6 border-b border-border">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className={`${cardClass} w-full max-w-lg`}>
+            <div className="flex items-center justify-between p-6 border-b border-border/50">
               <h3 className="text-xl font-bold text-foreground">
-                {editing ? 'Edit Room' : 'Create Room'}
+                {editing ? 'Edit Place' : 'Create Place'}
               </h3>
-              <button onClick={() => setShowModal(false)} className="text-foreground/50 hover:text-foreground/80">
+              <button onClick={() => setShowModal(false)} className="text-foreground/50 hover:text-foreground/80 hover:bg-white/10 rounded-lg p-1 transition">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -238,7 +245,7 @@ export default function AdminRoomsPage() {
                   required
                   value={formData.name}
                   onChange={e => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring"
+                  className={`${fieldClass} py-2`}
                   placeholder="Lab 204"
                 />
               </div>
@@ -249,7 +256,7 @@ export default function AdminRoomsPage() {
                     required
                     value={formData.building}
                     onChange={e => setFormData({ ...formData, building: e.target.value })}
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring"
+                    className={`${fieldClass} py-2`}
                   />
                 </div>
                 <div>
@@ -258,16 +265,16 @@ export default function AdminRoomsPage() {
                     required
                     value={formData.floor}
                     onChange={e => setFormData({ ...formData, floor: e.target.value })}
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring"
+                    className={`${fieldClass} py-2`}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-foreground mb-1">Room # *</label>
+                  <label className="block text-sm font-semibold text-foreground mb-1">Location # *</label>
                   <input
                     required
-                    value={formData.roomNumber}
-                    onChange={e => setFormData({ ...formData, roomNumber: e.target.value })}
-                    className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring"
+                    value={formData.locationNumber}
+                    onChange={e => setFormData({ ...formData, locationNumber: e.target.value })}
+                    className={`${fieldClass} py-2`}
                   />
                 </div>
               </div>
@@ -277,7 +284,7 @@ export default function AdminRoomsPage() {
                   required
                   value={formData.ownerId}
                   onChange={e => setFormData({ ...formData, ownerId: e.target.value })}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring"
+                  className={`${fieldClass} py-2`}
                 >
                   <option value="">Select complainer...</option>
                   {complainers.map(c => (
@@ -295,7 +302,7 @@ export default function AdminRoomsPage() {
                 <textarea
                   value={formData.notes}
                   onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring h-20"
+                  className="w-full px-4 py-2 glass-input dark:glass-input-dark rounded-lg focus:ring-2 focus:ring-ring h-20"
                   placeholder="Optional notes"
                 />
               </div>
@@ -303,14 +310,14 @@ export default function AdminRoomsPage() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex-1 bg-foreground text-background hover:opacity-90 font-semibold py-2 rounded-lg disabled:opacity-50"
+                  className="flex-1 glass-button text-white font-semibold py-2 rounded-lg disabled:opacity-50"
                 >
-                  {saving ? 'Saving...' : editing ? 'Save Changes' : 'Create Room'}
+                  {saving ? 'Saving...' : editing ? 'Save Changes' : 'Create Place'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 border border-border text-foreground/80 font-semibold py-2 rounded-lg hover:bg-secondary/40"
+                  className="flex-1 glass-button-secondary text-primary font-semibold py-2 rounded-lg"
                 >
                   Cancel
                 </button>

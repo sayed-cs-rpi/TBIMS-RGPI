@@ -9,6 +9,14 @@ import { useEffect, useState } from 'react';
 import { subscribeToTickets, assignTicket } from '@/lib/firestore-service';
 import { Ticket } from '@/lib/types';
 import { orderBy, where } from 'firebase/firestore';
+import {
+  cardClass,
+  emptyStateClass,
+  pageSubClass,
+  pageTitleClass,
+  primaryBtnClass,
+  secondaryBtnClass,
+} from '@/components/app-shell';
 
 export default function TechnicianQueuePage() {
   const { user } = useAuth();
@@ -59,48 +67,41 @@ export default function TechnicianQueuePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-semibold tracking-tight text-foreground">Ticket Queue</h2>
-        <p className="text-foreground/60 mt-2">Available tickets waiting for assignment</p>
+        <h2 className={pageTitleClass}>Ticket Queue</h2>
+        <p className={pageSubClass}>Available tickets waiting for assignment</p>
       </div>
 
       {tickets.length === 0 ? (
-        <div className="bg-card border border-border p-12 text-center">
+        <div className={emptyStateClass}>
           <CheckCircle className="w-12 h-12 text-foreground/50 mx-auto mb-4" />
           <p className="text-foreground/60 mb-2 text-lg">No tickets in queue</p>
           <p className="text-foreground/60">All tickets are currently assigned.</p>
-          <Link
-            href="/staff/assigned"
-            className="inline-block mt-4 text-foreground hover:opacity-70 font-semibold"
-          >
+          <Link href="/staff/assigned" className={`inline-block mt-4 ${secondaryBtnClass}`}>
             View Your Assigned Tickets
           </Link>
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-foreground/60">
-              Showing <span className="font-semibold text-foreground">{tickets.length}</span> unassigned tickets
-            </p>
-          </div>
+          <p className="text-sm text-foreground/60">
+            Showing <span className="font-semibold text-foreground">{tickets.length}</span> unassigned tickets
+          </p>
 
           {tickets.map(ticket => (
-            <div key={ticket.id} className="border border-border bg-card">
+            <div key={ticket.id} className="space-y-3">
               <TicketCard ticket={ticket} />
-              <div className="px-5 pb-5 -mt-1">
-                <button
-                  onClick={() => handleAssignTicket(ticket)}
-                  disabled={assigning === ticket.id}
-                  className="bg-foreground text-background font-medium px-4 py-2 hover:opacity-90 transition disabled:opacity-50"
-                >
-                  {assigning === ticket.id ? 'Assigning...' : 'Claim'}
-                </button>
-              </div>
+              <button
+                onClick={() => handleAssignTicket(ticket)}
+                disabled={assigning === ticket.id}
+                className={primaryBtnClass}
+              >
+                {assigning === ticket.id ? 'Assigning...' : 'Claim Ticket'}
+              </button>
             </div>
           ))}
         </div>
       )}
 
-      <div className="bg-secondary/40 border border-border rounded-lg p-4 flex gap-3">
+      <div className={`${cardClass} flex gap-3 !py-4`}>
         <AlertCircle className="w-5 h-5 text-foreground flex-shrink-0 mt-0.5" />
         <div>
           <p className="font-medium text-foreground">Tip</p>

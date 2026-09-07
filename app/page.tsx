@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { LoadingScreen } from '@/components/app-shell';
 
 export default function Page() {
   const router = useRouter();
@@ -11,7 +12,14 @@ export default function Page() {
   useEffect(() => {
     if (!loading) {
       if (user) {
-        const redirectPath = user.role === 'complainer' ? '/complainer' : user.role === 'technician' ? '/technician' : user.role === 'staff' ? '/staff' : '/admin';
+        const redirectPath =
+          user.role === 'complainer'
+            ? '/complainer'
+            : user.role === 'technician'
+              ? '/technician'
+              : user.role === 'staff'
+                ? '/staff'
+                : '/admin';
         router.push(redirectPath);
       } else {
         router.push('/login');
@@ -20,14 +28,7 @@ export default function Page() {
   }, [user, loading, router]);
 
   if (loading) {
-    return (
-      <main className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-2 border-foreground/20 border-t-foreground mx-auto"></div>
-          <p className="mt-4 text-foreground/60 text-sm">Loading...</p>
-        </div>
-      </main>
-    );
+    return <LoadingScreen message="Loading..." />;
   }
 
   return null;

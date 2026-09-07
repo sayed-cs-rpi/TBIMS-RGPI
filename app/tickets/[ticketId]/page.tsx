@@ -17,6 +17,14 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
+import {
+  cardClass,
+  fieldClass,
+  pageShellClass,
+  pageTitleClass,
+  primaryBtnClass,
+  secondaryBtnClass,
+} from '@/components/app-shell';
 
 export default function TicketDetailPage({
   params,
@@ -158,9 +166,9 @@ export default function TicketDetailPage({
 
   if (!ticket) {
     return (
-      <div className="bg-card border border-border p-8 text-center">
+      <div className={`${cardClass} text-center`}>
         <p className="text-foreground/60 mb-4">Ticket not found</p>
-        <Link href="/" className="text-foreground hover:opacity-70">
+        <Link href="/" className={primaryBtnClass}>
           Return Home
         </Link>
       </div>
@@ -172,10 +180,10 @@ export default function TicketDetailPage({
     user?.role === 'admin' || (user?.role === 'staff' && ticket.assignedToId === user.uid);
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className={`${pageShellClass} p-4 sm:p-6`}>
       <div className="max-w-5xl mx-auto space-y-6">
         <div className="flex items-center justify-between gap-4">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">{ticket.title}</h1>
+          <h1 className={pageTitleClass}>{ticket.title}</h1>
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-sm text-foreground/60 hover:text-foreground transition"
@@ -185,7 +193,7 @@ export default function TicketDetailPage({
           </Link>
         </div>
 
-        <div className="bg-card border border-border p-6 sm:p-8">
+        <div className={cardClass}>
           <div className="flex items-start justify-between mb-6">
             <div className="flex-1">
               <p className="text-foreground/60">#{ticket.id.substring(0, 8)}</p>
@@ -218,12 +226,12 @@ export default function TicketDetailPage({
                 <p className="text-lg font-medium text-foreground">{ticket.assignedToName}</p>
               </div>
             )}
-            {ticket.roomName && (
+            {ticket.placeName && (
               <div className="md:col-span-2">
-                <p className="text-sm text-foreground/60 mb-1">Room</p>
-                <p className="text-lg font-medium text-foreground">{ticket.roomName}</p>
+                <p className="text-sm text-foreground/60 mb-1">Place</p>
+                <p className="text-lg font-medium text-foreground">{ticket.placeName}</p>
                 <p className="text-sm text-foreground/60">
-                  {ticket.roomBuilding} · Floor {ticket.roomFloor} · #{ticket.roomNumber}
+                  {ticket.placeBuilding} · Floor {ticket.placeFloor} · #{ticket.placeNumber}
                 </p>
               </div>
             )}
@@ -234,6 +242,27 @@ export default function TicketDetailPage({
             <p className="text-foreground/60 whitespace-pre-wrap">{ticket.description}</p>
           </div>
 
+          {ticket.attachments && ticket.attachments.length > 0 && (
+            <div className="mt-8 pt-8 border-t border-border">
+              <h3 className="text-lg font-semibold text-foreground mb-3">Attached Images ({ticket.attachments.length})</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {ticket.attachments.map((imageUrl, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={imageUrl}
+                      alt={`Attachment ${index + 1}`}
+                      className="w-full h-48 object-cover rounded-lg border border-border cursor-pointer hover:opacity-90 transition-opacity"
+                      onClick={() => window.open(imageUrl, '_blank')}
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
+                      <span className="text-white text-sm font-medium">Click to view</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {user?.role === 'admin' && (
             <div className="mt-8 pt-8 border-t border-border">
               <h3 className="text-lg font-semibold text-foreground mb-3">
@@ -243,7 +272,7 @@ export default function TicketDetailPage({
                 <select
                   value={selectedTechId}
                   onChange={e => setSelectedTechId(e.target.value)}
-                  className="flex-1 px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring"
+                  className={`flex-1 ${fieldClass}`}
                 >
                   <option value="">Select technician...</option>
                   {technicians.map(tech => (
@@ -255,7 +284,7 @@ export default function TicketDetailPage({
                 <button
                   onClick={handleAdminAssign}
                   disabled={assigning || !selectedTechId}
-                  className="bg-foreground text-background hover:opacity-90 font-semibold px-6 py-2 rounded-lg transition-colors disabled:opacity-50"
+                  className={primaryBtnClass}
                 >
                   {assigning ? 'Assigning...' : ticket.assignedToId ? 'Reassign' : 'Assign'}
                 </button>
@@ -276,11 +305,7 @@ export default function TicketDetailPage({
                   <button
                     key={status}
                     onClick={() => handleStatusChange(status)}
-                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                      ticket.status === status
-                        ? 'bg-foreground text-background'
-                        : 'bg-secondary text-foreground/80 hover:bg-secondary'
-                    }`}
+                    className={ticket.status === status ? primaryBtnClass : secondaryBtnClass}
                   >
                     {status.replace('_', ' ').charAt(0).toUpperCase() +
                       status.replace('_', ' ').slice(1)}
@@ -291,7 +316,7 @@ export default function TicketDetailPage({
           )}
         </div>
 
-        <div className="bg-card border border-border p-8">
+        <div className={cardClass}>
           <h3 className="text-lg font-semibold text-foreground mb-6">Messages ({messages.length})</h3>
 
           <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
@@ -331,12 +356,12 @@ export default function TicketDetailPage({
               value={messageText}
               onChange={e => setMessageText(e.target.value)}
               placeholder="Type your message..."
-              className="flex-1 px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+              className={`flex-1 ${fieldClass}`}
             />
             <button
               type="submit"
               disabled={sending || !messageText.trim()}
-              className="bg-foreground text-background hover:opacity-90 font-semibold px-6 py-2 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+              className={`${primaryBtnClass} flex items-center gap-2 disabled:opacity-50`}
             >
               <Send className="w-4 h-4" />
               Send

@@ -1,0 +1,73 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper function to get user role from Firestore
+    function getUserRole() {
+      return get(/databases/(default)/documents/users/$(request.auth.uid)).data.role;
+    }
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return getUserRole() == 'admin';
+    }
+    
+    // Helper function to check if user is staff
+    function isStaff() {
+      return getUserRole() == 'staff';
+    }
+    
+    // Helper function to check if user is technician
+    function isTechnician() {
+      return getUserRole() == 'technician';
+    }
+    
+    // Helper function to check if user is complainer
+    function isComplainer() {
+      return getUserRole() == 'complainer';
+    }
+    
+    // Match ticket images
+    match /ticket-images/{ticketId}/{allPaths=**} {
+      // Allow read if user has access to the ticket
+      allow read: if request.auth != null && (
+        // Admins can read all images
+        isAdmin() ||
+        // Staff can read all images
+        isStaff() ||
+        // Check if user is the ticket creator
+        get(/databases/(default)/documents/tickets/$(ticketId)).data.complainerId == request.auth.uid ||
+        // Check if user is assigned to the ticket
+        get(/databases/(default)/documents/tickets/$(ticketId)).data.assignedToId == request.auth.uid
+      );
+      
+      // Allow write (upload) if:
+      allow write: if request.auth != null && (
+        // Admins can upload to any ticket
+        isAdmin() ||
+        // Staff can upload to any ticket
+        isStaff() ||
+        // Complainers can only upload to their own tickets
+        (isComplainer() && get(/databases/(default)/documents/tickets/$(ticketId)).data.complainerId == request.auth.uid) ||
+        // Technicians can only upload to tickets assigned to them
+        (isTechnician() && get(/databases/(default)/documents/tickets/$(ticketId)).data.assignedToId == request.auth.uid)
+      ) && 
+      // File size limit (5MB)
+      request.resource.size < 5 * 1024 * 1024 &&
+      // Only allow image files
+      request.resource.contentType.matches('image/.*');
+    }
+    
+    // Match user avatars
+    match /user-avatars/{userId}/{allPaths=**} {
+      // Users can read their own avatar
+      allow read: if request.auth != null;
+      
+      // Users can upload their own avatar
+      allow write: if request.auth != null && 
+                    request.auth.uid == userId &&
+                    request.resource.size < 2 * 1024 * 1024 &&
+                    request.resource.contentType.matches('image/.*');
+    }
+  }
+}

@@ -21,30 +21,33 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
+        url: '/favicon-16x16.png',
+        sizes: '16x16',
+        type: 'image/png',
       },
       {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
+        url: '/favicon-32x32.png',
+        sizes: '32x32',
+        type: 'image/png',
       },
       {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-      {
-        url: '/icon-192.png',
+        url: '/android-chrome-192x192.png',
         sizes: '192x192',
         type: 'image/png',
       },
+      {
+        url: '/android-chrome-512x512.png',
+        sizes: '512x512',
+        type: 'image/png',
+      },
     ],
-    apple: '/apple-icon.png',
+    apple: '/apple-touch-icon.png',
   },
 }
 
 export const viewport: Viewport = {
   colorScheme: 'light dark',
-  themeColor: '#FAF9F6',
+  themeColor: '#1E3A8A',
 }
 
 export default function RootLayout({
@@ -53,9 +56,15 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="bg-background">
-      <body className="antialiased">
-        {/* <Analytics /> */}
+    <html lang="en" className="bg-background" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var e=document.documentElement,m=window.matchMedia('(prefers-color-scheme: dark)');if(m.matches)e.classList.add('dark');else e.classList.remove('dark');}catch(t){}})();`,
+          }}
+        />
+      </head>
+      <body className="antialiased min-h-screen">
         <SetupCheck />
         <ServiceWorkerRegistration />
         <AuthProvider>
@@ -66,10 +75,6 @@ export default function RootLayout({
           <Toaster position="top-right" />
         </AuthProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
-        <footer className="bg-secondary/5 p-4 text-center text-xs text-foreground/50">
-          <p className="mb-1">Copyright &copy; {new Date().getFullYear()} absyd. All Rights Reserved.</p>
-          <p>A ticket-based issue management system for RGPI.</p>
-        </footer>
       </body>
     </html>
   )

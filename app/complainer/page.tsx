@@ -7,7 +7,7 @@ import { Ticket } from '@/lib/types';
 import { TicketCard } from '@/components/ticket-card';
 import Link from 'next/link';
 import { Plus, AlertCircle } from 'lucide-react';
-import { pageTitleClass, pageSubClass, primaryBtnClass, cardClass } from '@/components/app-shell';
+import { pageTitleClass, pageSubClass, primaryBtnClass, cardClass, statCardClass } from '@/components/app-shell';
 import { orderBy, where } from 'firebase/firestore';
 
 export default function ComplainerPage() {
@@ -78,7 +78,7 @@ export default function ComplainerPage() {
               value: tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length,
             },
           ].map(stat => (
-            <div key={stat.label} className="bg-card border border-border p-5">
+            <div key={stat.label} className={statCardClass}>
               <p className="text-sm text-foreground/60">{stat.label}</p>
               <p className="text-3xl font-semibold tracking-tight mt-1">{stat.value}</p>
             </div>

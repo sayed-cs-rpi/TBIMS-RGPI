@@ -6,6 +6,16 @@ import { getDbInstance } from '@/lib/firebase';
 import { User, UserRole } from '@/lib/types';
 import { Users, Shield, Wrench, Plus } from 'lucide-react';
 import { useAdminCreateUser } from '@/lib/auth-hooks';
+import {
+  cardClass,
+  fieldClass,
+  pageSubClass,
+  pageTitleClass,
+  panelClass,
+  primaryBtnClass,
+  secondaryBtnClass,
+  statCardClass,
+} from '@/components/app-shell';
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -107,79 +117,60 @@ export default function AdminUsersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-semibold tracking-tight text-foreground">User Management</h2>
-          <p className="text-foreground/40 mt-2">View and manage system users</p>
+          <h2 className={pageTitleClass}>User Management</h2>
+          <p className={pageSubClass}>View and manage system users</p>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-foreground text-background hover:opacity-90 transition"
-        >
+        <button onClick={() => setShowCreateModal(true)} className={`flex items-center gap-2 ${primaryBtnClass}`}>
           <Plus className="w-4 h-4" />
           Create User
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-card border border-border p-6">
+        <div className={statCardClass}>
           <p className="text-sm text-foreground/60 mb-1">Total Users</p>
           <p className="text-3xl font-semibold tracking-tight text-foreground">{roleStats.total}</p>
         </div>
-        <div className="bg-secondary/40 rounded-lg border border-border p-6">
+        <div className={statCardClass}>
           <p className="text-sm text-foreground/60 mb-1">Complainers</p>
           <p className="text-3xl font-semibold tracking-tight text-foreground">{roleStats.complainer}</p>
         </div>
-        <div className="bg-secondary/40 rounded-lg border border-border p-6">
+        <div className={statCardClass}>
           <p className="text-sm text-foreground/60 mb-1">Technicians</p>
           <p className="text-3xl font-semibold tracking-tight text-foreground">{roleStats.technician}</p>
         </div>
-        <div className="bg-secondary/40 rounded-lg border border-border p-6">
+        <div className={statCardClass}>
           <p className="text-sm text-foreground/60 mb-1">Admins</p>
           <p className="text-3xl font-semibold tracking-tight text-foreground">{roleStats.admin}</p>
         </div>
       </div>
 
-      <div className="bg-card border border-border">
-        <div className="p-6 border-b border-border">
+      <div className={`${panelClass} overflow-hidden`}>
+        <div className="p-6 border-b border-border/50">
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setRoleFilter('all')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                roleFilter === 'all'
-                  ? 'bg-foreground text-background'
-                  : 'bg-secondary text-foreground/80 hover:bg-secondary'
-              }`}
+              className={roleFilter === 'all' ? primaryBtnClass : secondaryBtnClass}
             >
-              All Users ({users.length})
+              All
             </button>
             <button
               onClick={() => setRoleFilter('complainer')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                roleFilter === 'complainer'
-                  ? 'bg-foreground text-background'
-                  : 'bg-secondary text-foreground/80 hover:bg-secondary'
-              }`}
+              className={roleFilter === 'complainer' ? primaryBtnClass : secondaryBtnClass}
             >
-              Complainers ({roleStats.complainer})
+              Complainers
             </button>
             <button
               onClick={() => setRoleFilter('technician')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                roleFilter === 'technician'
-                  ? 'bg-foreground text-background'
-                  : 'bg-secondary text-foreground/80 hover:bg-secondary'
-              }`}
+              className={roleFilter === 'technician' ? primaryBtnClass : secondaryBtnClass}
             >
-              Technicians ({roleStats.technician})
+              Technicians
             </button>
             <button
               onClick={() => setRoleFilter('admin')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                roleFilter === 'admin'
-                  ? 'bg-foreground text-background'
-                  : 'bg-secondary text-foreground/80 hover:bg-secondary'
-              }`}
+              className={roleFilter === 'admin' ? primaryBtnClass : secondaryBtnClass}
             >
-              Admins ({roleStats.admin})
+              Admins
             </button>
           </div>
         </div>
@@ -190,7 +181,7 @@ export default function AdminUsersPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-border bg-secondary/40">
+                <tr className="border-b border-border/50 bg-white/30 dark:bg-white/10">
                   <th className="text-left py-3 px-6 text-sm font-semibold text-foreground/80">Name</th>
                   <th className="text-left py-3 px-6 text-sm font-semibold text-foreground/80">Email</th>
                   <th className="text-left py-3 px-6 text-sm font-semibold text-foreground/80">Role</th>
@@ -199,11 +190,11 @@ export default function AdminUsersPage() {
               </thead>
               <tbody>
                 {filteredUsers.map(user => (
-                  <tr key={user.uid} className="border-b border-border hover:bg-secondary/40">
+                  <tr key={user.uid} className="border-b border-border/30 hover:bg-white/20 dark:hover:bg-white/5 transition">
                     <td className="py-4 px-6 text-sm font-medium text-foreground">{user.name}</td>
                     <td className="py-4 px-6 text-sm text-foreground/60">{user.email}</td>
                     <td className="py-4 px-6 text-sm">
-                      <span className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium ${getRoleColor(user.role)}`}>
+                      <span className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium glass-badge rounded-full ${getRoleColor(user.role)}`}>
                         {getRoleIcon(user.role)}
                         {user.role}
                       </span>
@@ -220,9 +211,9 @@ export default function AdminUsersPage() {
       </div>
 
       {showCreateModal && (
-        <div className="fixed inset-0 bg-foreground/40 flex items-center justify-center p-4 z-50">
-          <div className="bg-card border border-border w-full max-w-md">
-            <div className="p-6 border-b border-border">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className={`${cardClass} w-full max-w-md`}>
+            <div className="p-6 border-b border-border/50">
               <h3 className="text-xl font-semibold text-foreground">Create New User</h3>
               <p className="text-sm text-foreground/60 mt-1">Fill in the details to create a new user account</p>
             </div>
@@ -234,7 +225,7 @@ export default function AdminUsersPage() {
                   required
                   value={formData.name}
                   onChange={e => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  className={`${fieldClass} py-2`}
                   placeholder="John Doe"
                 />
               </div>
@@ -245,7 +236,7 @@ export default function AdminUsersPage() {
                   required
                   value={formData.email}
                   onChange={e => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  className={`${fieldClass} py-2`}
                   placeholder="you@example.com"
                 />
               </div>
@@ -254,7 +245,7 @@ export default function AdminUsersPage() {
                 <select
                   value={formData.role}
                   onChange={e => setFormData({ ...formData, role: e.target.value as UserRole })}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  className={`${fieldClass} py-2`}
                 >
                   <option value="complainer">Ticket Creator (Complainer)</option>
                   <option value="technician">Support Technician</option>
@@ -269,7 +260,7 @@ export default function AdminUsersPage() {
                   required
                   value={formData.password}
                   onChange={e => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  className={`${fieldClass} py-2`}
                   placeholder="••••••••"
                 />
               </div>
@@ -280,7 +271,7 @@ export default function AdminUsersPage() {
                   required
                   value={formData.confirmPassword}
                   onChange={e => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  className={`${fieldClass} py-2`}
                   placeholder="••••••••"
                 />
               </div>
@@ -288,14 +279,14 @@ export default function AdminUsersPage() {
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="flex-1 px-4 py-2 border border-border text-foreground/80 rounded-lg hover:bg-secondary/40 transition"
+                  className="flex-1 px-4 py-2 glass-button-secondary text-primary rounded-lg"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={createLoading}
-                  className="flex-1 px-4 py-2 bg-foreground text-background hover:opacity-90 transition disabled:opacity-50"
+                  className="flex-1 px-4 py-2 glass-button text-white transition disabled:opacity-50"
                 >
                   {createLoading ? 'Creating...' : 'Create User'}
                 </button>

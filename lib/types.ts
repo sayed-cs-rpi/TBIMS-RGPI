@@ -24,12 +24,12 @@ export interface Shift {
 export type TicketPriority = 'low' | 'medium' | 'high' | 'critical';
 export type TicketStatus = 'open' | 'assigned' | 'in_progress' | 'resolved' | 'closed';
 
-export interface Room {
+export interface Place {
   id: string;
   name: string;
   building: string;
   floor: string;
-  roomNumber: string;
+  locationNumber: string;
   notes?: string;
   ownerId: string;
   ownerName: string;
@@ -50,11 +50,11 @@ export interface Ticket {
   priority: TicketPriority;
   status: TicketStatus;
   category: string;
-  roomId?: string;
-  roomName?: string;
-  roomBuilding?: string;
-  roomFloor?: string;
-  roomNumber?: string;
+  placeId?: string;
+  placeName?: string;
+  placeBuilding?: string;
+  placeFloor?: string;
+  placeNumber?: string;
   assignedToId?: string;
   assignedToName?: string;
   createdAt: Date;

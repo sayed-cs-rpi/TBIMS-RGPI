@@ -8,6 +8,13 @@ import { TicketCard } from '@/components/ticket-card';
 import { AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { orderBy, where } from 'firebase/firestore';
+import {
+  emptyStateClass,
+  pageSubClass,
+  pageTitleClass,
+  primaryBtnClass,
+  secondaryBtnClass,
+} from '@/components/app-shell';
 
 const statusFilters: TicketStatus[] = ['assigned', 'in_progress', 'resolved', 'closed'];
 
@@ -47,18 +54,14 @@ export default function TechnicianAssignedPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-semibold tracking-tight text-foreground">My Assigned Tickets</h2>
-        <p className="text-foreground/60 mt-2">Tickets assigned to you for resolution</p>
+        <h2 className={pageTitleClass}>My Assigned Tickets</h2>
+        <p className={pageSubClass}>Tickets assigned to you for resolution</p>
       </div>
 
       <div className="flex flex-wrap gap-2">
         <button
           onClick={() => setActiveFilter('all')}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            activeFilter === 'all'
-              ? 'bg-foreground text-background'
-              : 'bg-card border border-border text-foreground/80 hover:bg-secondary/40'
-          }`}
+          className={activeFilter === 'all' ? primaryBtnClass : secondaryBtnClass}
         >
           All ({tickets.length})
         </button>
@@ -69,11 +72,7 @@ export default function TechnicianAssignedPage() {
             <button
               key={status}
               onClick={() => setActiveFilter(status)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                activeFilter === status
-                  ? 'bg-foreground text-background'
-                  : 'bg-card border border-border text-foreground/80 hover:bg-secondary/40'
-              }`}
+              className={activeFilter === status ? primaryBtnClass : secondaryBtnClass}
             >
               {label} ({count})
             </button>
@@ -82,7 +81,7 @@ export default function TechnicianAssignedPage() {
       </div>
 
       {filteredTickets.length === 0 ? (
-        <div className="bg-card border border-border p-12 text-center">
+        <div className={emptyStateClass}>
           <AlertCircle className="w-12 h-12 text-foreground/40 mx-auto mb-4" />
           <p className="text-foreground/60 mb-2 text-lg">
             {activeFilter === 'all' ? 'No tickets assigned yet' : `No ${activeFilter} tickets`}
@@ -92,10 +91,7 @@ export default function TechnicianAssignedPage() {
               ? 'Check the queue for available tickets to claim'
               : 'Change the filter to see other tickets'}
           </p>
-          <Link
-            href="/technician"
-            className="inline-block text-foreground hover:opacity-70 font-semibold"
-          >
+          <Link href="/staff" className={`inline-block ${secondaryBtnClass}`}>
             Back to Queue
           </Link>
         </div>

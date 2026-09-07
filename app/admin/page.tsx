@@ -5,6 +5,7 @@ import { subscribeToTickets } from '@/lib/firestore-service';
 import { Ticket } from '@/lib/types';
 import { Ticket as TicketIcon, AlertCircle, CheckCircle, Clock } from 'lucide-react';
 import { orderBy } from 'firebase/firestore';
+import { cardClass, pageSubClass, pageTitleClass, statCardClass } from '@/components/app-shell';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -45,37 +46,37 @@ export default function AdminDashboard() {
   }
 
   const statCards = [
-    { label: 'Total Tickets', value: stats.total, icon: TicketIcon, color: 'bg-secondary/40' },
-    { label: 'Open', value: stats.open, icon: AlertCircle, color: 'bg-secondary/40' },
-    { label: 'In Progress', value: stats.inProgress, icon: Clock, color: 'bg-secondary/40' },
-    { label: 'Resolved', value: stats.resolved + stats.closed, icon: CheckCircle, color: 'bg-secondary/40' },
+    { label: 'Total Tickets', value: stats.total, icon: TicketIcon },
+    { label: 'Open', value: stats.open, icon: AlertCircle },
+    { label: 'In Progress', value: stats.inProgress, icon: Clock },
+    { label: 'Resolved', value: stats.resolved + stats.closed, icon: CheckCircle },
   ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-semibold tracking-tight text-foreground">Dashboard</h2>
-        <p className="text-foreground/60 mt-2">System overview and statistics</p>
+        <h2 className={pageTitleClass}>Dashboard</h2>
+        <p className={pageSubClass}>System overview and statistics</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((card, idx) => {
           const Icon = card.icon;
           return (
-            <div key={idx} className={`${card.color} rounded-lg border border-border p-6`}>
+            <div key={idx} className={statCardClass}>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-foreground/60 mb-1">{card.label}</p>
                   <p className="text-3xl font-semibold tracking-tight text-foreground">{card.value}</p>
                 </div>
-                {/* <Icon className="w-8 h-8 text-foreground/40" /> */}
+                <Icon className="w-7 h-7 text-primary/40" />
               </div>
             </div>
           );
         })}
       </div>
 
-      <div className="bg-card border border-border p-8">
+      <div className={cardClass}>
         <h3 className="text-lg font-semibold text-foreground mb-6">Recent Tickets</h3>
         
         {tickets.length === 0 ? (

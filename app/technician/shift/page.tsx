@@ -7,6 +7,7 @@ import { Shift } from '@/lib/types';
 import toast from 'react-hot-toast';
 import { Clock, LogIn, LogOut } from 'lucide-react';
 import { format } from 'date-fns';
+import { cardClass, pageSubClass, pageTitleClass, primaryBtnClass } from '@/components/app-shell';
 
 export default function TechnicianShiftPage() {
   const { user } = useAuth();
@@ -91,12 +92,12 @@ export default function TechnicianShiftPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-semibold tracking-tight text-foreground">My Shift</h2>
-        <p className="text-foreground/60 mt-2">Manage your work shift</p>
+        <h2 className={pageTitleClass}>My Shift</h2>
+        <p className={pageSubClass}>Manage your work shift</p>
       </div>
 
       {activeShift ? (
-        <div className="bg-card border border-border p-8">
+        <div className={cardClass}>
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-2xl font-semibold tracking-tight text-foreground">Shift Active</h3>
             <div className="w-3 h-3 bg-foreground rounded-full animate-pulse"></div>
@@ -135,7 +136,7 @@ export default function TechnicianShiftPage() {
           </button>
         </div>
       ) : (
-        <div className="bg-card border border-border p-8">
+        <div className={cardClass}>
           <div className="text-center mb-8">
             <h3 className="text-2xl font-semibold tracking-tight text-foreground mb-2">No Active Shift</h3>
             <p className="text-foreground/60">Start a shift to become available for tickets</p>
@@ -144,7 +145,7 @@ export default function TechnicianShiftPage() {
           <button
             onClick={handleStartShift}
             disabled={isStartingShift}
-            className="w-full bg-foreground text-background hover:opacity-90 font-semibold px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            className={`w-full ${primaryBtnClass} py-3 flex items-center justify-center gap-2`}
           >
             <LogIn className="w-5 h-5" />
             {isStartingShift ? 'Starting Shift...' : 'Start Shift (8 hours)'}

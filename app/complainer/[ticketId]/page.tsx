@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import Link from 'next/link';
 import { ArrowLeft, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { cardClass, fieldClass, pageTitleClass, primaryBtnClass } from '@/components/app-shell';
 
 export default function TicketDetailPage({ params }: { params: { ticketId: string } }) {
   const { user } = useAuth();
@@ -77,9 +78,9 @@ export default function TicketDetailPage({ params }: { params: { ticketId: strin
 
   if (!ticket) {
     return (
-      <div className="bg-card border border-border p-8 text-center">
+      <div className={`${cardClass} text-center`}>
         <p className="text-foreground/60 mb-4">Ticket not found</p>
-        <Link href="/complainer" className="text-foreground hover:opacity-70">
+        <Link href="/complainer" className={primaryBtnClass}>
           Back to Tickets
         </Link>
       </div>
@@ -93,10 +94,10 @@ export default function TicketDetailPage({ params }: { params: { ticketId: strin
         Back to Tickets
       </Link>
 
-      <div className="bg-card border border-border p-8">
+      <div className={cardClass}>
         <div className="flex items-start justify-between mb-6">
           <div className="flex-1">
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground mb-2">{ticket.title}</h1>
+            <h1 className={`${pageTitleClass} mb-2`}>{ticket.title}</h1>
             <p className="text-foreground/60">#{ticket.id.substring(0, 8)}</p>
           </div>
           <div className="flex gap-2">
@@ -143,7 +144,7 @@ export default function TicketDetailPage({ params }: { params: { ticketId: strin
         </div>
       </div>
 
-      <div className="bg-card border border-border p-8">
+      <div className={cardClass}>
         <h3 className="text-lg font-semibold text-foreground mb-6">Messages ({messages.length})</h3>
 
         <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
@@ -171,12 +172,12 @@ export default function TicketDetailPage({ params }: { params: { ticketId: strin
             value={messageText}
             onChange={e => setMessageText(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+            className={`flex-1 ${fieldClass}`}
           />
           <button
             type="submit"
             disabled={sending || !messageText.trim()}
-            className="bg-foreground text-background hover:opacity-90 font-semibold px-6 py-2 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+            className={`${primaryBtnClass} flex items-center gap-2 disabled:opacity-50`}
           >
             <Send className="w-4 h-4" />
             Send

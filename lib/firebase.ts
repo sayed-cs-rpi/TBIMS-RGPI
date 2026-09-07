@@ -2,6 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getMessaging, getToken } from 'firebase/messaging';
+import { getStorage, connectStorageEmulator } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '',
@@ -21,12 +22,14 @@ export const isFirebaseConfigured = !!(
 let app: ReturnType<typeof initializeApp> | null = null;
 export let auth: ReturnType<typeof getAuth> | null = null;
 export let db: ReturnType<typeof getFirestore> | null = null;
+export let storage: ReturnType<typeof getStorage> | null = null;
 
 try {
   if (isFirebaseConfigured) {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
+    storage = getStorage(app);
   }
 } catch (error) {
   console.error('[v0] Firebase initialization error:', error);
@@ -45,6 +48,13 @@ export function getDbInstance() {
     throw new Error('Firebase is not configured. Please set up your environment variables.');
   }
   return db;
+}
+
+export function getStorageInstance() {
+  if (!storage) {
+    throw new Error('Firebase Storage is not configured. Please set up your environment variables.');
+  }
+  return storage;
 }
 
 // Initialize messaging if in browser

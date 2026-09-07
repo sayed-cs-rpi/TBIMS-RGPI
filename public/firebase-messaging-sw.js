@@ -18,12 +18,12 @@ importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compa
 // Initialize Firebase with environment variables
 // These will be replaced by the actual values during the build process
 const firebaseConfig = {
-  apiKey: self.__FIREBASE_API_KEY__ || 'your_api_key',
-  authDomain: self.__FIREBASE_AUTH_DOMAIN__ || 'your_project.firebaseapp.com',
-  projectId: self.__FIREBASE_PROJECT_ID__ || 'your_project_id',
-  storageBucket: self.__FIREBASE_STORAGE_BUCKET__ || 'your_project.appspot.com',
-  messagingSenderId: self.__FIREBASE_MESSAGING_SENDER_ID__ || 'your_sender_id',
-  appId: self.__FIREBASE_APP_ID__ || 'your_app_id',
+  apiKey: '' || 'your_api_key',
+  authDomain: '' || 'your_project.firebaseapp.com',
+  projectId: '' || 'your_project_id',
+  storageBucket: '' || 'your_project.appspot.com',
+  messagingSenderId: '' || 'your_sender_id',
+  appId: '' || 'your_app_id',
 };
 
 try {

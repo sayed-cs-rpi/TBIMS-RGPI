@@ -18,7 +18,7 @@ import {
   Unsubscribe,
 } from 'firebase/firestore';
 import { getDbInstance } from './firebase';
-import { Ticket, TicketMessage, Shift, User, Room, UserRole } from './types';
+import { Ticket, TicketMessage, Shift, User, Place, UserRole } from './types';
 
 function mapTicketDoc(id: string, data: Record<string, unknown>): Ticket {
   return {
@@ -30,13 +30,13 @@ function mapTicketDoc(id: string, data: Record<string, unknown>): Ticket {
   } as Ticket;
 }
 
-function mapRoomDoc(id: string, data: Record<string, unknown>): Room {
+function mapPlaceDoc(id: string, data: Record<string, unknown>): Place {
   return {
     id,
     name: (data.name as string) || '',
     building: (data.building as string) || '',
     floor: (data.floor as string) || '',
-    roomNumber: (data.roomNumber as string) || '',
+    locationNumber: (data.locationNumber as string) || '',
     notes: data.notes as string | undefined,
     ownerId: (data.ownerId as string) || '',
     ownerName: (data.ownerName as string) || '',
@@ -157,69 +157,69 @@ export async function updateTicket(ticketId: string, updates: Partial<Ticket>) {
   await updateDoc(ticketRef, payload as any);
 }
 
-// Rooms
-export async function createRoom(
-  room: Omit<Room, 'id' | 'createdAt' | 'updatedAt'>
+// Places
+export async function createPlace(
+  place: Omit<Place, 'id' | 'createdAt' | 'updatedAt'>
 ) {
-  const roomRef = doc(collection(getDbInstance(), 'rooms'));
+  const placeRef = doc(collection(getDbInstance(), 'places'));
   const now = new Date();
-  await setDoc(roomRef, {
-    ...room,
+  await setDoc(placeRef, {
+    ...place,
     createdAt: Timestamp.fromDate(now),
     updatedAt: Timestamp.fromDate(now),
   });
-  return roomRef.id;
+  return placeRef.id;
 }
 
-export async function getRoom(roomId: string) {
-  const docRef = doc(getDbInstance(), 'rooms', roomId);
+export async function getPlace(placeId: string) {
+  const docRef = doc(getDbInstance(), 'places', placeId);
   const docSnap = await getDoc(docRef);
   if (docSnap.exists()) {
-    return mapRoomDoc(docSnap.id, docSnap.data() as Record<string, unknown>);
+    return mapPlaceDoc(docSnap.id, docSnap.data() as Record<string, unknown>);
   }
   return null;
 }
 
-export async function getRooms() {
-  const q = query(collection(getDbInstance(), 'rooms'), orderBy('createdAt', 'desc'));
+export async function getPlaces() {
+  const q = query(collection(getDbInstance(), 'places'), orderBy('createdAt', 'desc'));
   const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(d => mapRoomDoc(d.id, d.data() as Record<string, unknown>));
+  return querySnapshot.docs.map(d => mapPlaceDoc(d.id, d.data() as Record<string, unknown>));
 }
 
-export function subscribeToRooms(onUpdate: (rooms: Room[]) => void): Unsubscribe {
-  const q = query(collection(getDbInstance(), 'rooms'), orderBy('createdAt', 'desc'));
+export function subscribeToPlaces(onUpdate: (places: Place[]) => void): Unsubscribe {
+  const q = query(collection(getDbInstance(), 'places'), orderBy('createdAt', 'desc'));
   return onSnapshot(q, querySnapshot => {
     onUpdate(
-      querySnapshot.docs.map(d => mapRoomDoc(d.id, d.data() as Record<string, unknown>))
+      querySnapshot.docs.map(d => mapPlaceDoc(d.id, d.data() as Record<string, unknown>))
     );
   });
 }
 
-export async function getRoomsByOwner(ownerId: string) {
-  const q = query(collection(getDbInstance(), 'rooms'), where('ownerId', '==', ownerId));
+export async function getPlacesByOwner(ownerId: string) {
+  const q = query(collection(getDbInstance(), 'places'), where('ownerId', '==', ownerId));
   const querySnapshot = await getDocs(q);
-  const rooms = querySnapshot.docs.map(d => mapRoomDoc(d.id, d.data() as Record<string, unknown>));
-  return rooms.sort((a, b) => a.name.localeCompare(b.name));
+  const places = querySnapshot.docs.map(d => mapPlaceDoc(d.id, d.data() as Record<string, unknown>));
+  return places.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-export async function updateRoom(roomId: string, updates: Partial<Room>) {
-  const roomRef = doc(getDbInstance(), 'rooms', roomId);
-  const { id: _id, createdAt: _c, ...safeUpdates } = updates as Partial<Room> & {
+export async function updatePlace(placeId: string, updates: Partial<Place>) {
+  const placeRef = doc(getDbInstance(), 'places', placeId);
+  const { id: _id, createdAt: _c, ...safeUpdates } = updates as Partial<Place> & {
     id?: string;
     createdAt?: Date;
   };
-  await updateDoc(roomRef, {
+  await updateDoc(placeRef, {
     ...safeUpdates,
     updatedAt: Timestamp.fromDate(new Date()),
   });
 }
 
-export async function deleteRoom(roomId: string) {
-  await deleteDoc(doc(getDbInstance(), 'rooms', roomId));
+export async function deletePlace(placeId: string) {
+  await deleteDoc(doc(getDbInstance(), 'places', placeId));
 }
 
-export async function countActiveTicketsForRoom(roomId: string) {
-  const tickets = await getTickets([where('roomId', '==', roomId)]);
+export async function countActiveTicketsForPlace(placeId: string) {
+  const tickets = await getTickets([where('placeId', '==', placeId)]);
   return tickets.filter(t =>
     t.status === 'open' || t.status === 'assigned' || t.status === 'in_progress'
   ).length;

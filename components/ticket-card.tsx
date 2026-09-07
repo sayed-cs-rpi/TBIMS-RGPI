@@ -34,24 +34,24 @@ export function TicketCard({ ticket, onClick }: TicketCardProps) {
   return (
     <div
       onClick={onClick}
-      className="block p-5 border border-border bg-card hover:bg-secondary/30 transition cursor-pointer"
+      className="glass-card p-5 rounded-2xl hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all cursor-pointer"
     >
-      <div className="flex items-start justify-between mb-2 gap-3">
+      <div className="flex items-start justify-between mb-3 gap-3">
         <Link
           href={`/tickets/${ticket.id}`}
-          className="text-base font-medium text-foreground hover:opacity-70 line-clamp-2 transition"
+          className="text-base font-semibold text-foreground hover:text-primary line-clamp-2 transition"
           onClick={e => e.stopPropagation()}
         >
           {ticket.title}
         </Link>
-        <span className="text-xs text-foreground/40 whitespace-nowrap font-mono">
+        <span className="text-xs text-foreground/40 whitespace-nowrap font-mono bg-foreground/5 px-2 py-1 rounded-full">
           #{ticket.id.substring(0, 8)}
         </span>
       </div>
 
-      <p className="text-sm text-foreground/60 mb-3 line-clamp-2">{ticket.description}</p>
+      <p className="text-sm text-foreground/70 mb-4 line-clamp-2">{ticket.description}</p>
 
-      <div className="flex flex-wrap gap-2 mb-3">
+      <div className="flex flex-wrap gap-2 mb-4">
         <Badge variant={priorityInfo.color as any}>
           <AlertCircle className="w-3 h-3 mr-1" />
           {priorityInfo.label}
@@ -60,24 +60,25 @@ export function TicketCard({ ticket, onClick }: TicketCardProps) {
         {ticket.category && <Badge variant="outline">{ticket.category}</Badge>}
       </div>
 
-      <div className="flex items-center justify-between text-xs text-foreground/50">
-        <div className="flex items-center gap-1">
-          <Clock className="w-3 h-3" />
+      <div className="flex items-center justify-between text-xs text-foreground/60">
+        <div className="flex items-center gap-1.5">
+          <Clock className="w-3.5 h-3.5 text-primary" />
           {createdDate}
         </div>
         {ticket.assignedToName && (
-          <div>
-            Assigned to: <span className="text-foreground/80">{ticket.assignedToName}</span>
+          <div className="font-medium">
+            <span className="text-foreground/60">Assigned to:</span>{' '}
+            <span className="text-foreground">{ticket.assignedToName}</span>
           </div>
         )}
       </div>
-      {ticket.roomName && (
-        <div className="mt-2 flex items-center gap-1 text-xs text-foreground/50">
-          <MapPin className="w-3 h-3" />
+      {ticket.placeName && (
+        <div className="mt-3 flex items-center gap-1.5 text-xs text-foreground/60 pt-3 border-t border-border/50">
+          <MapPin className="w-3.5 h-3.5 text-primary" />
           <span>
-            {ticket.roomName}
-            {ticket.roomBuilding
-              ? ` · ${ticket.roomBuilding}, Floor ${ticket.roomFloor}, #${ticket.roomNumber}`
+            {ticket.placeName}
+            {ticket.placeBuilding
+              ? ` · ${ticket.placeBuilding}, Floor ${ticket.placeFloor}, #${ticket.placeNumber}`
               : ''}
           </span>
         </div>

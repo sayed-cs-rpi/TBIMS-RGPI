@@ -2,11 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { useSignIn } from '@/lib/auth-hooks';
 import { useAuth } from '@/lib/auth-context';
-import { Button } from '@/components/ui/button';
-import toast from 'react-hot-toast';
+import {
+  StandaloneShell,
+  cardClass,
+  fieldClass,
+  pageSubClass,
+  pageTitleClass,
+  primaryBtnClass,
+} from '@/components/app-shell';
+import { Ticket } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,17 +26,14 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (user && !authLoading) {
-      let redirectPath;
-
-      if (user.role === 'complainer') {
-        redirectPath = '/complainer';
-      } else if (user.role === 'technician') {
-        redirectPath = '/technician';
-      } else if (user.role === 'staff') {
-        redirectPath = '/staff';
-      } else {
-        redirectPath = '/admin';
-      }
+      const redirectPath =
+        user.role === 'complainer'
+          ? '/complainer'
+          : user.role === 'technician'
+            ? '/technician'
+            : user.role === 'staff'
+              ? '/staff'
+              : '/admin';
       router.push(redirectPath);
     }
   }, [user, authLoading, router]);
@@ -39,92 +42,71 @@ export default function LoginPage() {
     e.preventDefault();
 
     try {
-      const authUser = await signIn(formData.email, formData.password);
+      await signIn(formData.email, formData.password);
       setIsResponseRecieved(true);
       router.push('/dashboard');
-
-
-      // console.log('Auth user:', authUser);
     } catch (error) {
       console.error('[v0] Sign in error:', error);
       setIsResponseRecieved(false);
     }
   }
 
-  if (authLoading) {
+  if (authLoading || isResponseRecieved) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <StandaloneShell>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-2 border-foreground/20 border-t-foreground mx-auto"></div>
-          <p className="mt-4 text-foreground/60 text-sm">Loading...</p>
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-foreground/20 border-t-foreground mx-auto" />
+          <p className="mt-4 text-foreground/60 text-sm">
+            {isResponseRecieved ? 'Redirecting...' : 'Loading...'}
+          </p>
         </div>
-      </div>
+      </StandaloneShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
-      <div className="w-full max-w-md space-y-8">
-
-        {
-          isResponseRecieved ? (
-            <div className="min-h-screen bg-background flex items-center justify-center">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-2 border-foreground/20 border-t-foreground mx-auto"></div>
-                <p className="mt-4 text-foreground/60 text-sm">Redirecting...</p>
-              </div>
-            </div>
-          ) : (
-            <>
+    <StandaloneShell>
+      <div className={`${cardClass} w-full max-w-md`}>
+        <div className="flex items-center gap-3 mb-6">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <Ticket className="w-5 h-5" />
+          </span>
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight">Sign In</h1>
-            <p className="text-foreground/60 text-sm mt-2">Enter your credentials to continue</p>
+            <h1 className={pageTitleClass}>Sign In</h1>
+            <p className={pageSubClass}>Enter your credentials to continue</p>
           </div>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={e => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-3 border border-border bg-input text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition"
-                  placeholder="you@example.com"
-                />
-              </div>
+        </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={e => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full px-4 py-3 border border-border bg-input text-foreground placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition"
-                  placeholder="••••••••"
-                />
-              </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-2">
+            <label className="block text-sm font-medium">Email</label>
+            <input
+              type="email"
+              required
+              value={formData.email}
+              onChange={e => setFormData({ ...formData, email: e.target.value })}
+              className={fieldClass}
+              placeholder="you@example.com"
+            />
+          </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-foreground text-background font-medium py-3 hover:opacity-90 transition disabled:opacity-50"
-              >
-                {loading ? 'Signing In...' : 'Sign In'}
-              </button>
-            </form>
-        </>
-          )
-        }
+          <div className="space-y-2">
+            <label className="block text-sm font-medium">Password</label>
+            <input
+              type="password"
+              required
+              value={formData.password}
+              onChange={e => setFormData({ ...formData, password: e.target.value })}
+              className={fieldClass}
+              placeholder="••••••••"
+            />
+          </div>
 
-        {/* <div className="text-center text-sm text-foreground/60">
-          Contact your administrator to create an account
-        </div> */}
+          <button type="submit" disabled={loading} className={`w-full ${primaryBtnClass} py-3`}>
+            {loading ? 'Signing In...' : 'Sign In'}
+          </button>
+        </form>
       </div>
-    </div>
+    </StandaloneShell>
   );
 }

@@ -6,6 +6,15 @@ import { Ticket, TicketStatus, TicketPriority } from '@/lib/types';
 import { TicketCard } from '@/components/ticket-card';
 import Link from 'next/link';
 import { orderBy } from 'firebase/firestore';
+import {
+  cardClass,
+  emptyStateClass,
+  fieldClass,
+  pageSubClass,
+  pageTitleClass,
+  primaryBtnClass,
+  secondaryBtnClass,
+} from '@/components/app-shell';
 
 const statusFilters: TicketStatus[] = ['open', 'assigned', 'in_progress', 'resolved', 'closed'];
 const priorityFilters: TicketPriority[] = ['low', 'medium', 'high', 'critical'];
@@ -49,78 +58,58 @@ export default function AdminTicketsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-semibold tracking-tight text-foreground">All Tickets</h2>
-        <p className="text-foreground/60 mt-2">Manage and monitor all support tickets</p>
+        <h2 className={pageTitleClass}>All Tickets</h2>
+        <p className={pageSubClass}>Manage and monitor all support tickets</p>
       </div>
 
-      <div className="bg-card border border-border p-6 space-y-4">
+      <div className={`${cardClass} space-y-4`}>
         <input
           type="text"
           placeholder="Search by title, complainer name, or email..."
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
-          className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+          className={fieldClass}
         />
 
         <div className="flex flex-wrap gap-2">
-          <div>
+          <button
+            onClick={() => setStatusFilter('all')}
+            className={statusFilter === 'all' ? primaryBtnClass : secondaryBtnClass}
+          >
+            All Status
+          </button>
+          {statusFilters.map(status => (
             <button
-              onClick={() => setStatusFilter('all')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors me-2 ${
-                statusFilter === 'all'
-                  ? 'bg-foreground text-background'
-                  : 'bg-secondary text-foreground/80 hover:bg-secondary'
-              }`}
+              key={status}
+              onClick={() => setStatusFilter(status)}
+              className={statusFilter === status ? primaryBtnClass : secondaryBtnClass}
             >
-              All Status
+              {status.replace('_', ' ')}
             </button>
-            {statusFilters.map(status => (
-              <button
-                key={status}
-                onClick={() => setStatusFilter(status)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors me-2 ${
-                  statusFilter === status
-                    ? 'bg-foreground text-background'
-                    : 'bg-secondary text-foreground/80 hover:bg-secondary'
-                }`}
-              >
-                {status.replace('_', ' ')}
-              </button>
-            ))}
-          </div>
+          ))}
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <div>
+          <button
+            onClick={() => setPriorityFilter('all')}
+            className={priorityFilter === 'all' ? primaryBtnClass : secondaryBtnClass}
+          >
+            All Priority
+          </button>
+          {priorityFilters.map(priority => (
             <button
-              onClick={() => setPriorityFilter('all')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors me-2 ${
-                priorityFilter === 'all'
-                  ? 'bg-foreground text-background'
-                  : 'bg-secondary text-foreground/80 hover:bg-secondary'
-              }`}
+              key={priority}
+              onClick={() => setPriorityFilter(priority)}
+              className={priorityFilter === priority ? primaryBtnClass : secondaryBtnClass}
             >
-              All Priority
+              {priority}
             </button>
-            {priorityFilters.map(priority => (
-              <button
-                key={priority}
-                onClick={() => setPriorityFilter(priority)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors me-2 ${
-                  priorityFilter === priority
-                    ? 'bg-foreground text-background'
-                    : 'bg-secondary text-foreground/80 hover:bg-secondary'
-                }`}
-              >
-                {priority}
-              </button>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
 
       {filteredTickets.length === 0 ? (
-        <div className="bg-card border border-border p-12 text-center">
+        <div className={emptyStateClass}>
           <p className="text-foreground/60 mb-2 text-lg">No tickets found</p>
           <p className="text-foreground/60">Try adjusting your filters or search term.</p>
         </div>
